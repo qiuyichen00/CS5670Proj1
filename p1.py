@@ -23,31 +23,26 @@ def convolve(img, filt):
             result[:, :, i] = convolve2D(img2d, filt)
         return result
 
-
 def convolve2D(img, filt):
     m = len(img)
     n = len(img[0])
     l = len(filt)
     k = len(filt[0])
     result = np.zeros(img.shape)
+    # for each pixel
     for i in range(m):
         for j in range(n):
-            num = 0
-            for a in range(l):
+            newval = 0
+            # for each filter position a, b
+            for a in range(l): 
                 for b in range(k):
-                    # filt posi: a, b
-                    # img posi: i-(a-(l-1)/2), j-(b-(k-1)/2)
-                    filt_x = a
-                    filt_y = b
                     img_x = i-(a-(l-1)//2)
                     img_y = j-(b-(k-1)//2)
-                    
                     if (img_x < 0) or (img_x >= m) or (img_y < 0) or (img_y >=n):
-                        num += 0
+                        newval += 0
                     else:
-                        num += img[img_x][img_y] * filt[filt_x][filt_y]
-                        #print(img[img_x][img_y])
-            result[i][j] = num
+                        newval += img[img_x][img_y] * filt[a][b]
+            result[i][j] = newval
     return result
 
 ### TODO 3: Create a gaussian filter of size k x k and with standard deviation sigma
@@ -58,13 +53,10 @@ def gaussian_filter(k, sigma):
         for j in range(-n, n, 1):
             result[i+n][j+n] = gaussian_val(i, j, sigma)
     all_sum = np.sum(result)
-    for i in range(-n, n, 1):
-        for j in range(-n, n, 1):
-            result[i+n][j+n] /= all_sum
-    return result
+    return result / all_sum
 
 def gaussian_val(x, y, sigma):
-    temp1 = 1/ (2 * np.pi * (sigma**2))
+    temp1 = 1 / (2 * np.pi * (sigma**2))
     temp2 = np.exp(-(x**2 + y**2) / (2 * (sigma**2)))
     return temp1 * temp2
 
