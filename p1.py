@@ -11,6 +11,7 @@ def imread(filename):
     image_data = np.asarray(image).astype(float)
     image_data /= 256
     return image_data
+
 ### TODO 2: Convolve an image (m x n x 3 or m x n) with a filter(l x k). Perform "same" filtering. Apply the filter to each channel if there are more than 1 channels
 def convolve(img, filt):
     if len(img.shape) == 2:
