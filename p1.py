@@ -122,9 +122,9 @@ def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
     result = np.zeros([thetas.shape[0], cs.shape[0]])
     for x in range(gradmag.shape[0]):
             for y in range(gradmag.shape[1]):
-                for t in range(thetas):
-                    for c in range(cs):
-                        if gradmag[x][y] > thresh1 and check_distance_from_line(x, y, t, c, thresh2) and np.abs(gradori - thetas) < thresh3:
+                for t in range(thetas.shape[0]):
+                    for c in range(cs.shape[0]):
+                        if gradmag[x][y] > thresh1 and check_distance_from_line(x, y, t, c, thresh2) and np.abs(gradori[x][y] - thetas[t]) < thresh3:
                             result[t][c] += 1
     return result
 
