@@ -24,10 +24,13 @@ def convolve(img, filt):
         return result
 
 def convolve2D(img, filt):
-    m = len(img)
-    n = len(img[0])
-    l = len(filt)
-    k = len(filt[0])
+    m = img.shape[0]
+    n = img.shape[1]
+    l = filt.shape[0]
+    k = 1
+    if filt.ndim > 1:
+        k = filt.shape[1]
+
     result = np.zeros(img.shape)
     # for each pixel
     for i in range(m):
@@ -41,7 +44,10 @@ def convolve2D(img, filt):
                     if (img_x < 0) or (img_x >= m) or (img_y < 0) or (img_y >=n):
                         newval += 0
                     else:
-                        newval += img[img_x][img_y] * filt[a][b]
+                        if filt.ndim > 1:
+                            newval += img[img_x][img_y] * filt[a][b]
+                        else:
+                            newval += img[img_x][img_y] * filt[a]
             result[i][j] = newval
     return result
 
@@ -69,7 +75,17 @@ def gaussian_val(x, y, sigma):
 ### convolve with [[0.5],[0],[-0.5]] to get the Y derivative on each channel
 ### Return the gradient magnitude and the gradient orientation (use arctan2)
 def gradient(img):
-    pass
+    img_gs = greyScale(img)
+    filt1 = gaussian_filter(5, 1)
+    img_gsfilt = convolve(img_gs, filt1)
+    filt2 = np.array([0.5, 0, -0.5])
+    filt3 = np.array([[0.5, 0, -0.5]])
+    img_dx = convolve(img_gsfilt, filt2)
+    img_dy = convolve(img_gsfilt, filt3)
+    return np.sqrt(np.square(img_dx) + np.square(img_dy)), np.arctan2(img_dy, img_dx)
+
+def greyScale(img):
+    return np.dot(img[...,0:3], [0.2125, 0.7154, 0.0721])
 
 ##########----------------Line detection----------------
 
