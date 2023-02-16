@@ -75,7 +75,7 @@ def gaussian_val(x, y, sigma):
 ### convolve with [[0.5],[0],[-0.5]] to get the Y derivative on each channel
 ### Return the gradient magnitude and the gradient orientation (use arctan2)
 def gradient(img):
-    img_gs = greyScale(img)
+    img_gs = grey_scale(img)
     filt1 = gaussian_filter(5, 1)
     img_gsfilt = convolve(img_gs, filt1)
     filt2 = np.array([0.5, 0, -0.5])
@@ -84,7 +84,7 @@ def gradient(img):
     img_dy = convolve(img_gsfilt, filt3)
     return np.sqrt(np.square(img_dx) + np.square(img_dy)), np.arctan2(img_dy, img_dx)
 
-def greyScale(img):
+def grey_scale(img):
     return np.dot(img[...,0:3], [0.2125, 0.7154, 0.0721])
 
 ##########----------------Line detection----------------
@@ -103,7 +103,13 @@ def check_distance_from_line(x, y, theta, c, thresh):
 ### and return a copy of the `img` with lines.
 def draw_lines(img, lines, thresh):
     
-    pass
+    for theta, c in lines:
+        for x in range(img.shape[0]):
+            for y in range(img.shape[1]):
+                if check_distance_from_line(x, y, theta, c, thresh).any() and not img[x][y] == [1, 0, 0]:
+                    img[x][y] = [1, 0, 0]
+    return img
+
 
 ### TODO 7: Do Hough voting. You get as input the gradient magnitude (m x n) and the gradient orientation (m x n), 
 ### as well as a set of possible theta values and a set of possible c values. 
@@ -113,7 +119,15 @@ def draw_lines(img, lines, thresh):
 ### (b) Its distance from the (theta, c) line is less than thresh2, **and**
 ### (c) The difference between theta and the pixel's gradient orientation is less than thresh3
 def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
-    pass   
+    result = np.zeros([thetas.shape[0], cs.shape[0]])
+    for x in range(gradmag.shape[0]):
+            for y in range(gradmag.shape[1]):
+                for t in range(thetas):
+                    for c in range(cs):
+                        if gradmag[x][y] > thresh1 and check_distance_from_line(x, y, t, c, thresh2) and np.abs(gradori - thetas) < thresh3:
+                            result[t][c] += 1
+    return result
+
 
 ### TODO 8: Find local maxima in the array of votes. A (theta, c) pair counts as a local maxima if: 
 ### (a) Its votes are greater than thresh, **and** 
@@ -122,8 +136,25 @@ def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
 ### coordinate of the potential local maxima placing at the center.
 ### Return a list of (theta, c) pairs.
 def localmax(votes, thetas, cs, thresh, nbhd):
-    pass
-  
+    result = []
+    for t in range(thetas.shape[0]):
+        for c in range(cs.shape[0]):
+
+            if votes[t][c] > thresh and votes[t][c] == find_nbhd_max(votes, nbhd, t, c):
+                result.append([thetas[t], cs[c]])
+    return result
+
+def find_nbhd_max(votes, nbhd, t, c):
+    max = 0
+    half_range = nbhd//2
+    for x in range(t - half_range, t + half_range):
+        for y in range(c - half_range, c + half_range):
+            if x >= 0 and x < votes.shape[0] and y >= 0 and y < votes.shape[0]: 
+                max = max(max, np.votes[x][y])
+
+    return max
+
+
 # Final product: Identify lines using the Hough transform    
 def do_hough_lines(filename):
 
