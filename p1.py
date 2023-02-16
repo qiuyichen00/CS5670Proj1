@@ -122,9 +122,12 @@ def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
     result = np.zeros([thetas.shape[0], cs.shape[0]])
     for x in range(gradmag.shape[0]):
             for y in range(gradmag.shape[1]):
+                # Can do the gradient magnitude condition here to save computation
+                if gradmag[x][y] <= thresh1:
+                    continue
                 for t in range(thetas.shape[0]):
                     for c in range(cs.shape[0]):
-                        if gradmag[x][y] > thresh1 and check_distance_from_line(x, y, t, c, thresh2) and np.abs(gradori[x][y] - thetas[t]) < thresh3:
+                        if check_distance_from_line(x, y, t, c, thresh2) and np.abs(gradori[x][y] - thetas[t]) < thresh3:
                             result[t][c] += 1
     return result
 
@@ -141,7 +144,7 @@ def localmax(votes, thetas, cs, thresh, nbhd):
         for c in range(cs.shape[0]):
 
             if votes[t][c] > thresh and votes[t][c] == find_nbhd_max(votes, nbhd, t, c):
-                result.append([thetas[t], cs[c]])
+                result.append((thetas[t], cs[c]))
     return result
 
 def find_nbhd_max(votes, nbhd, t, c):
@@ -181,4 +184,5 @@ def do_hough_lines(filename):
     # Return visualization and lines
     return result_img, lines
    
+    
     
