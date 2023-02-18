@@ -164,9 +164,9 @@ def find_nbhd_max(votes, nbhd, t, c):
     for x in range(t - half_range, t + half_range):
         for y in range(c - half_range, c + half_range):
             if x >= 0 and x < votes.shape[0] and y >= 0 and y < votes.shape[0]: 
-                maxvaL = max(maxval, votes[x][y])
+                maxval = max(maxval, votes[x][y])
 
-    return max
+    return maxval
 
 
 # Final product: Identify lines using the Hough transform    
