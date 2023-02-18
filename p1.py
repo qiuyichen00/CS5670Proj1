@@ -115,31 +115,22 @@ def draw_lines(img, lines, thresh):
 ### (c) The difference between theta and the pixel's gradient orientation is less than thresh3
 def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
 
-    # result = np.zeros([thetas.shape[0], cs.shape[0]])
-    # x = np.zeros_like(gradmag)
-    # y = np.zeros_like(gradmag)
-    # for i in range(gradmag.shape[0]):
-    #     for j in range(gradmag.shape[1]):
-    #         x[i][j] = j
-    #         y[i][j] = i
-    # cond1 = gradmag > thresh1
-    # for t in range(thetas.shape[0]):
-    #     for c in range(cs.shape[0]):
-    #         print(t*cs.shape[0]+c, " / ", thetas.shape[0] * cs.shape[0])
-    #         cond2 = check_distance_from_line(x, y, t, c, thresh2)
-    #         cond3 = (np.abs(gradori - thetas[t]) < thresh3)
-    #         vote_map = np.logical_and(np.logical_and(cond1, cond2),cond3)
-    #         votes = np.sum(vote_map)
-    #         result[t][c] += votes
     result = np.zeros([thetas.shape[0], cs.shape[0]])
-    magmask = gradmag > thresh1
+    x = np.zeros_like(gradmag)
+    y = np.zeros_like(gradmag)
+    for i in range(gradmag.shape[0]):
+        for j in range(gradmag.shape[1]):
+            x[i][j] = j
+            y[i][j] = i
     
+    cond1 = gradmag > thresh1
     for t in range(thetas.shape[0]):
-        newori = np.abs(thetas[t] - gradori)
-        orimask = newori < thresh3
-        x, y = np.nonzero(np.logical_and(magmask, orimask))
+        cond3 = (np.abs(gradori - thetas[t]) < thresh3)
         for c in range(cs.shape[0]):
-            result[t][c] += check_distance_from_line(x, y, thetas[t], cs[c], thresh2).shape[0]
+            cond2 = check_distance_from_line(x, y, thetas[t], cs[c], thresh2)
+            vote_map = np.logical_and(np.logical_and(cond1, cond2),cond3)
+            votes = np.sum(vote_map)
+            result[t][c] += votes
 
     return result
 
