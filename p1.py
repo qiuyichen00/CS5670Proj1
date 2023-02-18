@@ -143,21 +143,18 @@ def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
 ### Return a list of (theta, c) pairs.
 def localmax(votes, thetas, cs, thresh, nbhd):
     result = []
-    for t in range(thetas.shape[0]):
-        for c in range(cs.shape[0]):
-            if votes[t][c] > thresh and votes[t][c] == find_nbhd_max(votes, nbhd, t, c):
-                result.append((thetas[t], cs[c]))
+    offset = nbhd//2
+    votes = np.pad(votes, pad_width=offset, mode='constant', constant_values=0)
+    
+    for t in range(offset, offset + thetas.shape[0]):
+        for c in range(offset, offset + cs.shape[0]):
+            if votes[t][c] > thresh and votes[t][c] == find_nbhd_max(votes, offset, t, c):
+                result.append((thetas[t - offset], cs[c - offset]))
     return result
 
-def find_nbhd_max(votes, nbhd, t, c):
-    maxval = 0
-    half_range = nbhd//2
-    for x in range(t - half_range, t + half_range):
-        for y in range(c - half_range, c + half_range):
-            if x >= 0 and x < votes.shape[0] and y >= 0 and y < votes.shape[0]: 
-                maxval = max(maxval, votes[x][y])
-
-    return maxval
+def find_nbhd_max(votes, offset, t, c):
+    nbhd_matrix = votes[t - offset : t + offset, c - offset : c + offset]
+    return np.max(nbhd_matrix)
 
 
 # Final product: Identify lines using the Hough transform    
