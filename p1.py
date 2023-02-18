@@ -46,6 +46,7 @@ def convolve2D(img, filt):
             result[i][j] = newval
     return result
 
+
 ### TODO 3: Create a gaussian filter of size k x k and with standard deviation sigma
 def gaussian_filter(k, sigma):
     result = np.zeros((k, k))
@@ -132,13 +133,14 @@ def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
     #         result[t][c] += votes
     result = np.zeros([thetas.shape[0], cs.shape[0]])
     magmask = gradmag > thresh1
+    
     for t in range(thetas.shape[0]):
-        newori = thetas[t] - gradori
+        newori = np.abs(thetas[t] - gradori)
         orimask = newori < thresh3
         x, y = np.nonzero(np.logical_and(magmask, orimask))
         for c in range(cs.shape[0]):
-            result[t][c] += check_distance_from_line(x, y, t, c, thresh2).shape[0]
-        
+            result[t][c] += check_distance_from_line(x, y, thetas[t], cs[c], thresh2).shape[0]
+
     return result
 
 
@@ -162,9 +164,9 @@ def find_nbhd_max(votes, nbhd, t, c):
     for x in range(t - half_range, t + half_range):
         for y in range(c - half_range, c + half_range):
             if x >= 0 and x < votes.shape[0] and y >= 0 and y < votes.shape[0]: 
-                maxval = max(maxval, votes[x][y])
+                maxvaL = max(maxval, votes[x][y])
 
-    return maxval
+    return max
 
 
 # Final product: Identify lines using the Hough transform    
