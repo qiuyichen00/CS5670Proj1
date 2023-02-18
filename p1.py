@@ -22,7 +22,7 @@ def convolve(img, filt):
             img2d = img[:, :, i]
             result[:, :, i] = convolve2D(img2d, filt)
         return result
-
+    
 def convolve2D(img, filt):
     m = img.shape[0]
     n = img.shape[1]
@@ -55,11 +55,13 @@ def convolve2D(img, filt):
 def gaussian_filter(k, sigma):
     result = np.zeros((k, k))
     n = (k-1) // 2
+    all_sum = 0
     for i in range(-n, n + 1, 1):
         for j in range(-n, n + 1, 1):
-            result[i+n][j+n] = gaussian_val(i, j, sigma)
+            val = gaussian_val(i, j, sigma)
+            result[i+n][j+n] = val
+            all_sum += val
 
-    all_sum = np.sum(result)
     return result / all_sum
 
 def gaussian_val(x, y, sigma):
@@ -79,10 +81,15 @@ def gradient(img):
     img_gs = grey_scale(img)
     filt1 = gaussian_filter(5, 1)
     img_gsfilt = convolve(img_gs, filt1)
-    filt2 = np.array([0.5, 0, -0.5])
-    filt3 = np.array([[0.5, 0, -0.5]])
+    filt2 = np.array([[0, 0, 0],
+                      [0.5, 0, -0.5],
+                      [0, 0, 0]])
+    filt3 = np.array([[0, 0.5, 0], 
+                      [0, 0, 0], 
+                      [0, -0.5, 0]])
     img_dx = convolve(img_gsfilt, filt2)
     img_dy = convolve(img_gsfilt, filt3)
+    
     return np.sqrt(np.square(img_dx) + np.square(img_dy)), np.arctan2(img_dy, img_dx)
 
 def grey_scale(img):
@@ -103,17 +110,11 @@ def check_distance_from_line(x, y, theta, c, thresh):
 ### Mark the pixels that are less than `thresh` units away from the line with red color,
 ### and return a copy of the `img` with lines.
 def draw_lines(img, lines, thresh):
-    result = np.zeros(img.shape[0] * img.shape[1])
-    x = np.resize(np.arange(img.shape[0]), img.shape[0] * img.shape[1])
-    y = np.resize(np.arange(img.shape[1]), img.shape[0] * img.shape[1])
-    for theta, c in lines:
-        result = np.logical_or(result, check_distance_from_line(x, y, theta, c, thresh))
-    
-    result = np.reshape(result, (-1, img.shape[1]))
-    for x in range(img.shape[0]):
-        for y in range(img.shape[1]):
-            if result[x][y]:
-                img[x][y] = [1, 0, 0]
+    for x in range(img.shape[1]):
+        for y in range(img.shape[0]):
+            for (theta,c) in lines:
+                if(check_distance_from_line(x,y,theta,c,thresh)):
+                        img[y,x] = [1,0,0]
     return img
 
 
