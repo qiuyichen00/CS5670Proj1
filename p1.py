@@ -113,6 +113,23 @@ def draw_lines(img, lines, thresh):
 ### (b) Its distance from the (theta, c) line is less than thresh2, **and**
 ### (c) The difference between theta and the pixel's gradient orientation is less than thresh3
 def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
+
+    # result = np.zeros([thetas.shape[0], cs.shape[0]])
+    # x = np.zeros_like(gradmag)
+    # y = np.zeros_like(gradmag)
+    # for i in range(gradmag.shape[0]):
+    #     for j in range(gradmag.shape[1]):
+    #         x[i][j] = j
+    #         y[i][j] = i
+    # cond1 = gradmag > thresh1
+    # for t in range(thetas.shape[0]):
+    #     for c in range(cs.shape[0]):
+    #         print(t*cs.shape[0]+c, " / ", thetas.shape[0] * cs.shape[0])
+    #         cond2 = check_distance_from_line(x, y, t, c, thresh2)
+    #         cond3 = (np.abs(gradori - thetas[t]) < thresh3)
+    #         vote_map = np.logical_and(np.logical_and(cond1, cond2),cond3)
+    #         votes = np.sum(vote_map)
+    #         result[t][c] += votes
     result = np.zeros([thetas.shape[0], cs.shape[0]])
     magmask = gradmag > thresh1
     for t in range(thetas.shape[0]):
@@ -145,9 +162,9 @@ def find_nbhd_max(votes, nbhd, t, c):
     for x in range(t - half_range, t + half_range):
         for y in range(c - half_range, c + half_range):
             if x >= 0 and x < votes.shape[0] and y >= 0 and y < votes.shape[0]: 
-                maxvaL = max(maxval, votes[x][y])
+                maxval = max(maxval, votes[x][y])
 
-    return max
+    return maxval
 
 
 # Final product: Identify lines using the Hough transform    
