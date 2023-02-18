@@ -8,6 +8,7 @@ def play():
 ### TODO 1: Read an Image and convert it into a floating point array with values between 0 and 1. You can assume a color image
 def imread(filename):
     image = Image.open(filename)
+    image.convert('RGB')
     image_data = np.asarray(image).astype(float)
     image_data /= 256
     return image_data
@@ -102,8 +103,8 @@ def draw_lines(img, lines, thresh):
     for x in range(img.shape[1]):
         for y in range(img.shape[0]):
             for (theta,c) in lines:
-                if(check_distance_from_line(x,y,theta,c,thresh)):
-                        img[y,x] = [1,0,0]
+                if check_distance_from_line(x, y, theta, c, thresh):
+                        img[y][x] = [1, 0, 0]
     return img
 
 
