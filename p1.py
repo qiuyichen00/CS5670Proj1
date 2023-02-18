@@ -27,10 +27,7 @@ def convolve2D(img, filt):
     m = img.shape[0]
     n = img.shape[1]
     l = filt.shape[0]
-    k = 1
-    if filt.ndim > 1:
-        k = filt.shape[1]
-
+    k = filt.shape[1]
     result = np.zeros(img.shape)
     # for each pixel
     for i in range(m):
@@ -44,10 +41,7 @@ def convolve2D(img, filt):
                     if (img_x < 0) or (img_x >= m) or (img_y < 0) or (img_y >=n):
                         newval += 0
                     else:
-                        if filt.ndim > 1:
-                            newval += img[img_x][img_y] * filt[a][b]
-                        else:
-                            newval += img[img_x][img_y] * filt[a]
+                        newval += img[img_x][img_y] * filt[a][b]
             result[i][j] = newval
     return result
 
@@ -81,15 +75,10 @@ def gradient(img):
     img_gs = grey_scale(img)
     filt1 = gaussian_filter(5, 1)
     img_gsfilt = convolve(img_gs, filt1)
-    filt2 = np.array([[0, 0, 0],
-                      [0.5, 0, -0.5],
-                      [0, 0, 0]])
-    filt3 = np.array([[0, 0.5, 0], 
-                      [0, 0, 0], 
-                      [0, -0.5, 0]])
+    filt2 = np.array([[0.5, 0, -0.5]])
+    filt3 = np.array([[0.5], [0], [-0.5]])
     img_dx = convolve(img_gsfilt, filt2)
     img_dy = convolve(img_gsfilt, filt3)
-    
     return np.sqrt(np.square(img_dx) + np.square(img_dy)), np.arctan2(img_dy, img_dx)
 
 def grey_scale(img):
