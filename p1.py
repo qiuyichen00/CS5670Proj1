@@ -10,7 +10,7 @@ def imread(filename):
     image = Image.open(filename)
     image.convert('RGB')
     image_data = np.asarray(image).astype(float)
-    image_data /= 256
+    image_data /= 255
     return image_data
 
 ### TODO 2: Convolve an image (m x n x 3 or m x n) with a filter(l x k). Perform "same" filtering. Apply the filter to each channel if there are more than 1 channels
@@ -74,16 +74,13 @@ def gaussian_val(x, y, sigma):
 ### Return the gradient magnitude and the gradient orientation (use arctan2)
 def gradient(img):
     img_gs = grey_scale(img)
-    filt1 = gaussian_filter(5, 1)
-    img_gsfilt = convolve(img_gs, filt1)
-    filt2 = np.array([[0.5, 0, -0.5]])
-    filt3 = np.array([[0.5], [0], [-0.5]])
-    img_dx = convolve(img_gsfilt, filt2)
-    img_dy = convolve(img_gsfilt, filt3)
+    img_gsfilt = convolve(img_gs, gaussian_filter(5, 1))
+    img_dx = convolve(img_gsfilt, np.array([[0.5, 0, -0.5]]))
+    img_dy = convolve(img_gsfilt, np.array([[0.5], [0], [-0.5]]))
     return np.sqrt(np.square(img_dx) + np.square(img_dy)), np.arctan2(img_dy, img_dx)
 
 def grey_scale(img):
-    return np.dot(img[...,0:3], [0.2125, 0.7154, 0.0721])
+    return img[:, :, 0] * 0.2125 + img[:, :, 1] * 0.7154 + img[:, :, 2] * 0.0721
 
 ##########----------------Line detection----------------
 
@@ -117,15 +114,14 @@ def draw_lines(img, lines, thresh):
 ### (c) The difference between theta and the pixel's gradient orientation is less than thresh3
 def hough_voting(gradmag, gradori, thetas, cs, thresh1, thresh2, thresh3):
     result = np.zeros([thetas.shape[0], cs.shape[0]])
-    for x in range(gradmag.shape[0]):
-            for y in range(gradmag.shape[1]):
-                # Can do the gradient magnitude condition here to save computation
-                if gradmag[x][y] <= thresh1:
-                    continue
-                for t in range(thetas.shape[0]):
-                    for c in range(cs.shape[0]):
-                        if check_distance_from_line(x, y, t, c, thresh2) and np.abs(gradori[x][y] - thetas[t]) < thresh3:
-                            result[t][c] += 1
+    magmask = gradmag > thresh1
+    for t in range(thetas.shape[0]):
+        newori = thetas[t] - gradori
+        orimask = newori < thresh3
+        x, y = np.nonzero(np.logical_and(magmask, orimask))
+        for c in range(cs.shape[0]):
+            result[t][c] += check_distance_from_line(x, y, t, c, thresh2).shape[0]
+        
     return result
 
 
@@ -139,18 +135,17 @@ def localmax(votes, thetas, cs, thresh, nbhd):
     result = []
     for t in range(thetas.shape[0]):
         for c in range(cs.shape[0]):
-
             if votes[t][c] > thresh and votes[t][c] == find_nbhd_max(votes, nbhd, t, c):
                 result.append((thetas[t], cs[c]))
     return result
 
 def find_nbhd_max(votes, nbhd, t, c):
-    max = 0
+    maxval = 0
     half_range = nbhd//2
     for x in range(t - half_range, t + half_range):
         for y in range(c - half_range, c + half_range):
             if x >= 0 and x < votes.shape[0] and y >= 0 and y < votes.shape[0]: 
-                max = max(max, np.votes[x][y])
+                maxvaL = max(maxval, votes[x][y])
 
     return max
 
