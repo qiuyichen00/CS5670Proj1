@@ -55,9 +55,10 @@ def convolve2D(img, filt):
 def gaussian_filter(k, sigma):
     result = np.zeros((k, k))
     n = (k-1) // 2
-    for i in range(-n, n, 1):
-        for j in range(-n, n, 1):
+    for i in range(-n, n + 1, 1):
+        for j in range(-n, n + 1, 1):
             result[i+n][j+n] = gaussian_val(i, j, sigma)
+
     all_sum = np.sum(result)
     return result / all_sum
 
@@ -102,12 +103,17 @@ def check_distance_from_line(x, y, theta, c, thresh):
 ### Mark the pixels that are less than `thresh` units away from the line with red color,
 ### and return a copy of the `img` with lines.
 def draw_lines(img, lines, thresh):
-    
+    result = np.zeros(img.shape[0] * img.shape[1])
+    x = np.resize(np.arange(img.shape[0]), img.shape[0] * img.shape[1])
+    y = np.resize(np.arange(img.shape[1]), img.shape[0] * img.shape[1])
     for theta, c in lines:
-        for x in range(img.shape[0]):
-            for y in range(img.shape[1]):
-                if check_distance_from_line(x, y, theta, c, thresh).any() and not img[x][y] == [1, 0, 0]:
-                    img[x][y] = [1, 0, 0]
+        result = np.logical_or(result, check_distance_from_line(x, y, theta, c, thresh))
+    
+    result = np.reshape(result, (-1, img.shape[1]))
+    for x in range(img.shape[0]):
+        for y in range(img.shape[1]):
+            if result[x][y]:
+                img[x][y] = [1, 0, 0]
     return img
 
 
