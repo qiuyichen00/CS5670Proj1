@@ -7,8 +7,7 @@ def play():
 
 ### TODO 1: Read an Image and convert it into a floating point array with values between 0 and 1. You can assume a color image
 def imread(filename):
-    image = Image.open(filename)
-    image.convert('RGB')
+    image = Image.open(filename).convert("RGB")
     image_data = np.asarray(image).astype(float)
     image_data /= 255
     return image_data
